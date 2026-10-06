@@ -1,0 +1,42 @@
+name = "pws-site-iso-smoke-1006e"
+main = "src/index.ts"
+compatibility_date = "2025-12-01"
+compatibility_flags = ["nodejs_compat"]
+
+workers_dev = true
+
+[[r2_buckets]]
+binding = "MEDIA"
+bucket_name = "pws-media"
+
+[observability]
+enabled = true
+
+# Form submissions: 10 per 60 s per (site, client) — the shared Worker's policy
+# (#51). Keys are site-scoped hashes, so sharing its namespace id is safe.
+[[unsafe.bindings]]
+name = "FORM_RATE_LIMIT"
+type = "ratelimit"
+namespace_id = "2"
+simple = { limit = 10, period = 60 }
+
+# Durable Objects (site data + AI sessions)
+[[durable_objects.bindings]]
+name = "SITE_DO"
+class_name = "SiteDO"
+
+[[durable_objects.bindings]]
+name = "SESSION_DO"
+class_name = "SessionDO"
+
+[[migrations]]
+tag = "v1"
+new_sqlite_classes = ["SiteDO", "SessionDO"]
+
+# Secrets (set via wrangler secret put):
+#   ANTHROPIC_API_KEY — for AI agent
+#   ADMIN_API_TOKEN — for admin auth
+#   RESEND_API_KEY — for transactional email
+#   EMAIL_FROM — sender address (e.g. "Site Name <noreply@yourdomain.com>")
+#   TURNSTILE_SITE_KEY, TURNSTILE_SECRET_KEY — set by the platform when it
+#     provisions this site (#51); forms are verified while both are present

@@ -1,0 +1,36 @@
+{
+  "name": "@pws/iso-smoke-1006e",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "packageManager": "pnpm@10.30.3",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "dev": "wrangler dev",
+    "deploy": "wrangler deploy",
+    "typecheck": "tsc --noEmit",
+    "test": "vitest run --passWithNoTests",
+    "lint": "biome check .",
+    "format": "biome format --write ."
+  },
+  "dependencies": {
+    "@pws/sdk": "file:vendor/pws-sdk-0.1.0.tgz",
+    "@pws/shared": "file:vendor/pws-shared-0.1.0.tgz",
+    "@anthropic-ai/sdk": "^0.102.0",
+    "hono": "^4.7.0"
+  },
+  "pnpm": {
+    "overrides": {
+      "@pws/shared": "file:vendor/pws-shared-0.1.0.tgz"
+    }
+  },
+  "devDependencies": {
+    "@biomejs/biome": "^1.9.4",
+    "@cloudflare/workers-types": "^4.20250520.0",
+    "typescript": "^5.8.0",
+    "vitest": "^4.1.7",
+    "wrangler": "^4.0.0"
+  }
+}

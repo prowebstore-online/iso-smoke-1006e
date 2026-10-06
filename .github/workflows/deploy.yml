@@ -1,0 +1,35 @@
+name: Deploy
+
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: pnpm/action-setup@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: pnpm
+
+      - run: pnpm install --frozen-lockfile
+
+      # CLOUDFLARE_API_TOKEN is the prowebstore-online org secret. The account id
+      # is a repo variable the platform sets when it provisions this repo: it is
+      # config, not a secret, and there is no org-level one to inherit.
+      - name: Deploy Worker
+        env:
+          CLOUDFLARE_API_TOKEN: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+          CLOUDFLARE_ACCOUNT_ID: ${{ vars.CLOUDFLARE_ACCOUNT_ID }}
+        run: pnpm exec wrangler deploy
+
+      # No smoke here. Until the platform attaches this site's route, the public
+      # hostname is answered by the shared Worker, so a curl of it would pass for
+      # the wrong reason. The platform smokes workers.dev and then the hostname,
+      # checking x-pws-worker, before the site is marked ready (#46).
